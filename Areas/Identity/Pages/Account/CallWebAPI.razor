@@ -1,0 +1,62 @@
+﻿@page "/call-web-api"
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@inject IHttpClientFactory ClientFactory
+
+<h1>Call web API from a Blazor Server Razor component</h1>
+
+
+
+    <select asp-for=" Input.Empresa" class="form-control" autocomplete="empresa" aria-required="true" placeholder="empresa" asp-route-value="empresaId">
+        @foreach (var branch in branches)
+        {
+            <option value="@branch.NombreEmisor">@branch.NombreEmisor</option>
+        }
+    </select>
+    @foreach (var branch in branches)
+    {
+        <li>@branch.NombreEmisor</li>
+    }
+
+
+@code {
+    public IEnumerable<GitHubBranch>? branches = Array.Empty<GitHubBranch>();
+    private bool getBranchesError;
+    private bool shouldRender;
+
+    protected override bool ShouldRender() => shouldRender;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var serviceProvider = new ServiceCollection().AddScoped<CallWebAPI>().BuildServiceProvider();
+        var callWebApi = serviceProvider.GetRequiredService<CallWebAPI>();
+
+        var request = new HttpRequestMessage(HttpMethod.Get,
+            "http://apiservicios.ecuasolmovsa.com:3009/api/Varios/GetEmisor");
+        request.Headers.Add("Accept", "application/vnd.github.v3+json");
+        request.Headers.Add("User-Agent", "HttpClientFactory-Sample");
+
+        var client = ClientFactory.CreateClient();
+
+        var response = await client.SendAsync(request);
+
+        if (response.IsSuccessStatusCode)
+        {
+            using var responseStream = await response.Content.ReadAsStreamAsync();
+            branches = await JsonSerializer.DeserializeAsync
+                <IEnumerable<GitHubBranch>>(responseStream);
+        }
+        else
+        {
+            getBranchesError = true;
+        }
+
+        shouldRender = true;
+    }
+
+    public class GitHubBranch
+    {
+        [JsonPropertyName("NombreEmisor")]
+        public string? NombreEmisor { get; set; }
+    }
+}

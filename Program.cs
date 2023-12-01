@@ -1,4 +1,5 @@
 using AuthSystem.Areas.Identity.Data;
+using AuthSystem.Areas.Identity.Pages.Account;
 using AuthSystem.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -18,7 +19,8 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 
 builder.Services.AddRazorPages();
-
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<CallWebAPI>();
 
 var app = builder.Build();
 

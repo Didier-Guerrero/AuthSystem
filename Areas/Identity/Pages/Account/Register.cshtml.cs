@@ -182,5 +182,8 @@ namespace AuthSystem.Areas.Identity.Pages.Account
             }
             return (IUserEmailStore<ApplicationUser>)_userStore;
         }
+
+
     }
+    
 }
