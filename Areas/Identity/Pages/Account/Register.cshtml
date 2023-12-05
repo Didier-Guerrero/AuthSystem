@@ -4,11 +4,10 @@
 @using System.Text.Json.Serialization
 
 @inject IHttpClientFactory ClientFactory
-@inject CallWebAPI CallWebApi
-
 @{
     ViewData["Title"] = "Register";
     Layout = "~/Areas/Identity/Pages/_AuthLayout.cshtml";
+
 }
 
 <h1>@ViewData["Title"]</h1>
@@ -17,7 +16,13 @@
     <h2>Create a new account.</h2>
     <hr />
     <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-
+    <div class="form-floating mb-3">
+        <select asp-for="Input.Empresa" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" >
+            <option value="si">Sí</option>
+        </select>/>
+        <label asp-for="Input.Empresa">Empresa</label>
+        <span asp-validation-for="Input.Empresa" class="text-danger"></span>
+    </div>
     
     <div class="form-floating mb-3">
         <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
@@ -36,19 +41,15 @@
         <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
     </div>
     <div class="form-floating mb-3">
-        <select asp-for="Input.Empresa" class="form-control" autocomplete="empresa" aria-required="true" placeholder="empresa" asp-route-value="empresaId">
-            @foreach (var branch in branches)
-            {
-                <option value="@branch.NombreEmisor">@branch.NombreEmisor</option>
-            }
-        </select>
-        <label asp-for="Input.Empresa">Empresa</label>
-        <span asp-validation-for="Input.Empresa" class="text-danger"></span>
+        
     </div>
     <hr/>
     
     <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
 </form>
+
+
+
     
 
 @section Scripts {
@@ -56,32 +57,5 @@
 }
 
 @functions {
-    private IEnumerable<GitHubBranch> branches = new List<GitHubBranch>();
-
-    private async Task<IEnumerable<GitHubBranch>> GetGitHubBranchesAsync()
-    {
-        var branches = new List<GitHubBranch>();
-
-            var request = new HttpRequestMessage(HttpMethod.Get, "http://apiservicios.ecuasolmovsa.com:3009/api/Varios/GetEmisor");
-            request.Headers.Add("Accept", "application/vnd.github.v3+json");
-            request.Headers.Add("User-Agent", "HttpClientFactory-Sample");
-
-            var client = ClientFactory.CreateClient();
-
-            var response = await client.SendAsync(request);
-
-
-                using var responseStream = await response.Content.ReadAsStreamAsync();
-                branches = await JsonSerializer.DeserializeAsync<List<GitHubBranch>>(responseStream) ?? new List<GitHubBranch>();
-
-
-
-        return branches;
-    }
-    public class GitHubBranch
-    {
-        [JsonPropertyName("NombreEmisor")]
-        public string? NombreEmisor { get; set; }
-
-    }
+   
 }
